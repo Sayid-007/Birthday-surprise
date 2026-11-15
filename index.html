@@ -1,0 +1,766 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Happy Birthday Lubna - Memory Lane</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
+          rel="stylesheet">
+
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+
+        :root {
+            --bg-paper: #faf6f0;
+            --ink-dark: #2c2825;
+            --ink-muted: #6b625b;
+            --accent-rose: #d96b6b;
+            --accent-gold: #e6a84c;
+            --card-white: #ffffff;
+            --line-color: #dfd6c9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-paper);
+
+            background-image: radial-gradient(
+                #e5ddd0 1px,
+                transparent 1px
+            );
+
+            background-size: 24px 24px;
+
+            color: var(--ink-dark);
+
+            font-family: 'Inter', sans-serif;
+
+            line-height: 1.6;
+
+            overflow-x: hidden;
+        }
+
+        /* Hero Header */
+
+        header {
+            text-align: center;
+            padding: 5rem 1.5rem 3.5rem;
+            max-width: 750px;
+            margin: 0 auto;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #f2e8dc;
+            color: var(--accent-rose);
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            margin-bottom: 1.2rem;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            line-height: 1.15;
+            margin-bottom: 1rem;
+            color: var(--ink-dark);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--ink-muted);
+            max-width: 550px;
+            margin: 0 auto;
+        }
+
+        /* Timeline Container */
+
+        .timeline {
+            position: relative;
+            max-width: 900px;
+            margin: 2rem auto 4rem;
+            padding: 0 1.5rem;
+        }
+
+        /* Vertical Center Line */
+
+        .timeline::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+
+            background: repeating-linear-gradient(
+                to bottom,
+                var(--line-color) 0,
+                var(--line-color) 8px,
+                transparent 8px,
+                transparent 16px
+            );
+
+            transform: translateX(-50%);
+        }
+
+        /* Timeline Item */
+
+        .memory-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5rem;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.7s ease-out;
+        }
+
+        .memory-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .memory-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        /* Center Timeline Dot */
+
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-rose);
+            border: 4px solid var(--bg-paper);
+            border-radius: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 0 2px var(--accent-rose);
+            z-index: 2;
+        }
+
+        /* Polaroid Photo Card */
+
+        .polaroid-wrapper {
+            width: 44%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .polaroid {
+            background: var(--card-white);
+            padding: 14px 14px 42px 14px;
+            box-shadow: 0 12px 30px rgba(44, 40, 37, 0.1);
+            border-radius: 4px;
+            position: relative;
+            transform: rotate(-2deg);
+            transition: transform 0.3s ease;
+            max-width: 340px;
+            width: 100%;
+        }
+
+        .memory-item:nth-child(even) .polaroid {
+            transform: rotate(2.5deg);
+        }
+
+        .polaroid:hover {
+            transform: rotate(0deg) scale(1.03);
+        }
+
+        /* Masking Tape Accent */
+
+        .tape {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-3deg);
+            width: 95px;
+            height: 26px;
+            background: rgba(230, 168, 76, 0.35);
+            backdrop-filter: blur(1px);
+            border-left: 1px dashed rgba(0, 0, 0, 0.08);
+            border-right: 1px dashed rgba(0, 0, 0, 0.08);
+        }
+
+        .polaroid img {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            display: block;
+            background: #eae4dc;
+        }
+
+        .polaroid-caption {
+            font-family: 'Caveat', cursive;
+            font-size: 1.55rem;
+            text-align: center;
+            color: var(--ink-dark);
+            margin-top: 12px;
+        }
+
+        /* Story Cards */
+
+        .story-card {
+            width: 44%;
+            background: var(--card-white);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(44, 40, 37, 0.06);
+            border: 1px solid #efe8de;
+        }
+
+        .date-tag {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.4rem;
+            display: block;
+        }
+
+        .story-card h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.65rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .story-card p {
+            color: var(--ink-muted);
+            font-size: 0.98rem;
+            margin-bottom: 1.25rem;
+        }
+
+        /* Personal Music Player */
+
+        .music-player {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #faf6f0;
+            border-radius: 12px;
+        }
+
+        .music-player h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            margin-bottom: 0.7rem;
+        }
+
+        .music-player audio {
+            width: 100%;
+            display: block;
+        }
+
+        /* Finale Letter & Confetti Section */
+
+        .finale {
+            max-width: 680px;
+            margin: 2rem auto 6rem;
+            padding: 3rem 2rem;
+            background: var(--card-white);
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(44, 40, 37, 0.08);
+            border: 1px solid #efe8de;
+            position: relative;
+        }
+
+        .finale h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .finale p {
+            color: var(--ink-muted);
+            font-size: 1.05rem;
+            margin-bottom: 2rem;
+            white-space: pre-line;
+        }
+
+        .signature {
+            font-family: 'Caveat', cursive;
+            font-size: 2rem;
+            color: var(--accent-rose);
+            margin-bottom: 2rem;
+            display: block;
+        }
+
+        .celebrate-btn {
+            background: linear-gradient(
+                135deg,
+                var(--accent-rose),
+                #e67e51
+            );
+
+            color: white;
+            border: none;
+            padding: 1rem 2.4rem;
+            font-size: 1.15rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+
+            box-shadow: 0 8px 20px rgba(217, 107, 107, 0.35);
+
+            transition: transform 0.2s ease,
+                        box-shadow 0.2s ease;
+        }
+
+        .celebrate-btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 12px 25px rgba(217, 107, 107, 0.45);
+        }
+
+        .celebrate-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Mobile Responsive Layout */
+
+        @media (max-width: 768px) {
+
+            .timeline::before {
+                left: 20px;
+            }
+
+            .timeline-dot {
+                left: 20px;
+            }
+
+            .memory-item,
+            .memory-item:nth-child(even) {
+                flex-direction: column;
+                align-items: flex-start;
+                padding-left: 48px;
+            }
+
+            .polaroid-wrapper,
+            .story-card {
+                width: 100%;
+            }
+
+            .polaroid-wrapper {
+                margin-bottom: 1.5rem;
+                justify-content: flex-start;
+            }
+
+            .story-card {
+                padding: 1.5rem;
+            }
+
+            .finale {
+                margin: 2rem 1rem 4rem;
+                padding: 2rem 1.5rem;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- HERO SECTION -->
+
+    <header>
+
+        <span class="badge">
+            From Sayid
+        </span>
+
+        <h1>Happy Birthday🎉🎂, Lubna!</h1>
+
+        <p class="subtitle">
+            A little trip down memory lane to celebrate
+            another year of laughs, chaos, and unforgettable moments.
+        </p>
+
+    </header>
+
+
+    <!-- TIMELINE SECTION -->
+
+    <main class="timeline">
+
+
+        <!-- MEMORY 1 -->
+
+        <section class="memory-item">
+
+            <div class="timeline-dot"></div>
+
+            <div class="polaroid-wrapper">
+
+                <div class="polaroid">
+
+                    <div class="tape"></div>
+
+                    <img
+                        src="images/1_Gallery.jpg"
+                        alt="Memory 1"
+                    >
+
+                    <div class="polaroid-caption">
+                        Where it all started →
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="story-card">
+
+                <span class="date-tag">
+                    Chapter 01 - The Beginning
+                </span>
+
+                <h2>Good Vibes</h2>
+
+                <p>
+                    Remember when we first hung out
+                    and had no idea how many inside jokes we
+                    were about to create? Easily one of the
+                    best decisions ever.
+                </p>
+
+                <!-- ADD YOUR FIRST SONG HERE
+                     Put your MP3 file in the music folder.
+                     Change song1.mp3 below to your exact filename. -->
+
+                <div class="music-player">
+
+                    <h3>🎵 A Song for This Memory</h3>
+
+                    <audio controls>
+                        <source src="abena_swanky_t_ft_akapondo_baraba_happy_birthday_official_video_mp4_mp3_86007.mp3" type="audio/mpeg">
+                        Your browser does not support audio playback.
+                    </audio>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- MEMORY 2 -->
+
+        <section class="memory-item">
+
+            <div class="timeline-dot"></div>
+
+            <div class="polaroid-wrapper">
+
+                <div class="polaroid">
+
+                    <div class="tape"></div>
+
+                    <img
+                        src="images/2_Gallery (3).jpg"
+                        alt="Memory 2"
+                    >
+
+                    <div class="polaroid-caption">
+                        Unmatched chaos
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="story-card">
+
+                <span class="date-tag">
+                    Chapter 02 - Core Memory
+                </span>
+
+                <h2>Unforgettable Nights</h2>
+
+                <p>
+                    
+
+Wishing you a day filled with happiness, laughter, and all the things that make you smile. May this new year of your life bring even more amazing memories, success, and moments worth celebrating.
+I can't believe it's been 4 years since this moment. Time has flown by so fast, yet the memories still feel just as special as ever. Looking back, I'm grateful for every laugh, every adventure, and every memory we've shared along the way. Here's to creating even more unforgettable moments together.
+Nothing beats those late-night conversations, terrible plans that somehow worked out, and this exact soundtrack. ❤️🎶
+
+                    Still can't look at this photo without
+                    laughing cause i didn't even know you were taking pics. 
+                </p>
+
+                <!-- ADD YOUR SECOND SONG HERE
+                     Put your MP3 file in the music folder.
+                     Change song2.mp3 to your exact filename. -->
+
+                <div class="music-player">
+
+                    <h3>🎵 Another Special Song</h3>
+
+                    <audio controls>
+                        <source src="ayra_starr_heaven_baby_ft._zayn_mp3_8894.mp3" type="audio/mpeg">
+                        Your browser does not support audio playback.
+                    </audio>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- MEMORY 3 -->
+
+        <section class="memory-item">
+
+            <div class="timeline-dot"></div>
+
+            <div class="polaroid-wrapper">
+
+                <div class="polaroid">
+
+                    <div class="tape"></div>
+
+                    <img
+                        src="images/2_Gallery (4).jpg"
+                        alt="Memory 3"
+                    >
+
+                    <div class="polaroid-caption">
+                        Cheers to what's next
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="story-card">
+
+                <span class="date-tag">
+                    Chapter 03 - Today & Beyond
+                </span>
+
+                <h2>Leveling Up</h2>
+
+                <p>
+                    Watching you crush your goals this
+                    past year has been awesome. No matter
+                    where life takes us next, you've always got
+                    someone cheering.
+                </p>
+
+                <!-- ADD YOUR THIRD SONG HERE
+                     Put your MP3 file in the music folder.
+                     Change song3.mp3 to your exact filename. -->
+
+                <div class="music-player">
+
+                    <h3>🎵 Another one lol</h3>
+
+                    <audio controls>
+                        <source src="john_legend_all_of_me_mp3_13445.mp3" type="audio/mpeg">
+                        Your browser does not support audio playback.
+                    </audio>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- FINALE LETTER & CONFETTI BUTTON -->
+
+    <section class="finale">
+
+        <h2>Make a Wish! 🎂</h2>
+
+        <p>
+            Wishing you the happiest of birthdays
+
+            filled with good food, zero stress, and
+
+            everything you've been working toward.
+
+            Thank you for being such an incredible
+
+            part of my life.
+
+            Here's to many more chapters ahead!
+        </p>
+
+        <span class="signature">
+            — Sayid
+        </span>
+
+        <br>
+
+        <button
+            class="celebrate-btn"
+            onclick="launchCelebration()">
+
+            Tap to Celebrate! 🎉
+
+        </button>
+
+    </section>
+
+
+
+    <!-- JAVASCRIPT -->
+
+    <script>
+
+        // Scroll Reveal Animation for Timeline Cards
+
+        const observer = new IntersectionObserver(
+
+            (entries) => {
+
+                entries.forEach((entry) => {
+
+                    if (entry.isIntersecting) {
+
+                        entry.target.classList.add('visible');
+
+                        observer.unobserve(entry.target);
+
+                    }
+
+                });
+
+            },
+
+            {
+                threshold: 0.15
+            }
+
+        );
+
+
+        document.querySelectorAll('.memory-item').forEach((item) => {
+
+            observer.observe(item);
+
+        });
+
+
+
+        // Confetti Celebration Function
+
+        function launchCelebration() {
+
+            const duration = 3 * 1000;
+
+            const end = Date.now() + duration;
+
+
+            (function frame() {
+
+                confetti({
+
+                    particleCount: 6,
+                    angle: 60,
+                    spread: 55,
+
+                    origin: {
+                        x: 0
+                    },
+
+                    colors: [
+                        '#d96b6b',
+                        '#e6a84c',
+                        '#4ecdc4',
+                        '#ff6b6b'
+                    ]
+
+                });
+
+
+                confetti({
+
+                    particleCount: 6,
+                    angle: 120,
+                    spread: 55,
+
+                    origin: {
+                        x: 1
+                    },
+
+                    colors: [
+                        '#d96b6b',
+                        '#e6a84c',
+                        '#4ecdc4',
+                        '#ff6b6b'
+                    ]
+
+                });
+
+
+                if (Date.now() < end) {
+
+                    requestAnimationFrame(frame);
+
+                }
+
+            })();
+
+        }
+
+
+
+        // Welcome Confetti When Page Loads
+
+        window.addEventListener('load', () => {
+
+            setTimeout(() => {
+
+                confetti({
+
+                    particleCount: 70,
+                    spread: 70,
+
+                    origin: {
+                        y: 0.6
+                    }
+
+                });
+
+            }, 500);
+
+        });
+
+    </script>
+
+</body>
+
+</html>
